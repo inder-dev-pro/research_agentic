@@ -6,10 +6,11 @@ from langgraph.graph import StateGraph, END, START
 from langgraph.graph import message
 from langgraph.graph.message import add_messages
 from langchain.chat_models import init_chat_model
-from requests.utils import resolve_proxies
 from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
 from IPython.display import display, Image
+from web_operations import serp_search
+
 load_dotenv()
 
 llm=init_chat_model('groq:llama-3.1-8b-instant')
@@ -31,13 +32,15 @@ class State(TypedDict):
 def google_search(state: State):
     user_question=state.get("user_question")
     print(f"Searching google for : {user_question}")
-    google_results=[]
+    google_results=serp_search(user_question,  engine="Google")
+    print(google_results)
     return {"google_results":google_results}
 
 def bing_search(state: State):
     user_question=state.get("user_question")
     print(f"Searching bing for : {user_question}")
-    bing_results=[]
+    bing_results=serp_search(user_question, engine="Bing")
+    print(bing_results)
     return {"bing_results":bing_results}
 
 def reddit_search(state: State):
