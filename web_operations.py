@@ -16,7 +16,7 @@ def make_api_requests(url, **kwargs):
     api_key=os.getenv("BRIGHTDATA_API_KEY")
 
     headers={
-        "Authorization":f"Bearer {api_key}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type":"application/json"
     }
 
@@ -86,7 +86,7 @@ def reddit_search_api(keyword, date="All time", sort_by="Hot", number_of_posts=7
         "dataset_id":"gd_lvz8ah06191smkebj4",
         "include_errors":"true",
         "type":"discover_new",
-	    "discover_by": "keyword"
+        "discover_by":"keyword"
     }
 
     # Bright Data dataset trigger expects a list of input records.
@@ -94,7 +94,7 @@ def reddit_search_api(keyword, date="All time", sort_by="Hot", number_of_posts=7
         "keyword": keyword,
         "date": date,
         "sort_by": sort_by,
-        "number_of_posts": number_of_posts
+        "num_of_posts": number_of_posts
     }]
 
     raw_data=trigger_and_download_snapshot(trigger_url, params=params, data=data, operation_name="reddit")
