@@ -1,9 +1,12 @@
 from multiprocessing import Value
+from select import poll
+from tracemalloc import Snapshot
 from dotenv import load_dotenv
 import os
 from langgraph.cache import base
 import requests
 from urllib.parse import quote_plus
+from snapshot_operations import poll_snapshot_status, download_snapshot
 
 from urllib3 import response
 
@@ -29,6 +32,7 @@ def make_api_requests(url, **kwargs):
     except Exception as e:
         print(f"Unknown error {e}")
         return None
+
 def serp_search(query, engine="Google"):
     if engine=="Google":
         base_url="https://www.google.com/search"
@@ -56,3 +60,55 @@ def serp_search(query, engine="Google"):
     }
 
     return extracted_data
+
+def trigger_and_download_snapshot(trigger_url, params, data, operation_name="operation"):
+    trigger_results=make_api_requests(trigger_url, params=params, json=data)
+    if not trigger_results:
+        return None
+
+    snapshot_id=trigger_results.get("snapshot_id")
+
+    if not snapshot_id:
+        return None
+
+    if not poll_snapshot_status(snapshot_id):
+        return None
+
+    raw_data=download_snapshot(snapshot_id)
+
+    return raw_data
+
+def reddit_search_api(keyword, date="All time", sort_by="Hot", number_of_posts=75):
+
+    trigger_url="https://api.brightdata.com/datasets/v3/trigger"
+
+    params={
+        "dataset_id":"gd_lvz8ah06191smkebj4",
+        "include_errors":"true",
+        "type":"discover_new",
+	    "discover_by": "keyword"
+    }
+
+    # Bright Data dataset trigger expects a list of input records.
+    data = [{
+        "keyword": keyword,
+        "date": date,
+        "sort_by": sort_by,
+        "number_of_posts": number_of_posts
+    }]
+
+    raw_data=trigger_and_download_snapshot(trigger_url, params=params, data=data, operation_name="reddit")
+
+    if not raw_data:
+        return None
+
+    parsed_data=[]
+
+    for post in raw_data:
+        parsed_post={
+            "title":post.get("title"),
+            "url":post.get("url")
+        }
+        parsed_data.append(parsed_post)
+    
+    return {"parsed_posts":parsed_data, "total_count":len(parsed_data)}

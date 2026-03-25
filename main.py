@@ -9,11 +9,13 @@ from langchain.chat_models import init_chat_model
 from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
 from IPython.display import display, Image
-from web_operations import serp_search
+from web_operations import serp_search, reddit_search_api
 
 load_dotenv()
 
 llm=init_chat_model('groq:llama-3.1-8b-instant')
+
+dataset_id="gd_lvz8ah06191smkebj4"
 
 class State(TypedDict):
     messages:Annotated[list, add_messages]
@@ -30,23 +32,24 @@ class State(TypedDict):
 
 
 def google_search(state: State):
-    user_question=state.get("user_question")
+    user_question=state.get("user_question","")
     print(f"Searching google for : {user_question}")
     google_results=serp_search(user_question,  engine="Google")
     print(google_results)
     return {"google_results":google_results}
 
 def bing_search(state: State):
-    user_question=state.get("user_question")
+    user_question=state.get("user_question","")
     print(f"Searching bing for : {user_question}")
     bing_results=serp_search(user_question, engine="Bing")
     print(bing_results)
     return {"bing_results":bing_results}
 
 def reddit_search(state: State):
-    user_question=state.get("user_question")
+    user_question=state.get("user_question","")
     print(f"Searching reddit for : {user_question}")
-    reddit_results=[]
+    reddit_results=reddit_search_api(user_question)
+    print(reddit_results)
     return {"reddit_results":reddit_results}
 
 def analyse_reddit_posts(state: State):
