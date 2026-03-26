@@ -1,3 +1,4 @@
+from base64 import urlsafe_b64decode
 from multiprocessing import Value
 from select import poll
 from tracemalloc import Snapshot
@@ -78,7 +79,7 @@ def trigger_and_download_snapshot(trigger_url, params, data, operation_name="ope
 
     return raw_data
 
-def reddit_search_api(keyword, date="All time", sort_by="Hot", number_of_posts=75):
+def reddit_search_api(keyword, date="All time", sort_by="Hot", number_of_posts=30):
 
     trigger_url="https://api.brightdata.com/datasets/v3/trigger"
 
@@ -112,3 +113,40 @@ def reddit_search_api(keyword, date="All time", sort_by="Hot", number_of_posts=7
         parsed_data.append(parsed_post)
     
     return {"parsed_posts":parsed_data, "total_count":len(parsed_data)}
+
+def retrieve_reddit_posts(urls, days_back=10, load_all_replies=False, comment_limit=""):
+    if not urls:
+        return None
+
+    trigger_url="https://api.brightdata.com/datasets/v3/trigger"
+
+    params={
+        "dataset_id":"gd_lvzdpsdlw09j6t702",
+        "include_errors":"true"
+    }
+
+    data =[{
+        "url":url,
+        "days_back":days_back,
+        "load_all_replies":load_all_replies,
+        "comment_limit":comment_limit
+        }
+        for url in urls
+    ]
+
+    raw_data=trigger_and_download_snapshot(trigger_url, params=params, data=data, operation_name="reddit_comments")
+
+    if not raw_data:
+        return None
+
+    parsed_comments=[]
+
+    for comment in raw_data:
+        parsed_comment={
+            "comment_id":comment.get("comment_id"),
+            "content":comment.get("content"),
+            "date":comment.get("date")
+        }
+        parsed_comments.append(parsed_comment)
+
+    return {"comments":parsed_comments, "total_count":len(parsed_comments)}
