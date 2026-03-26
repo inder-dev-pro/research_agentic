@@ -9,7 +9,6 @@ from langchain.chat_models import init_chat_model
 from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
 import json
-from IPython.display import display, Image
 from web_operations import (
     serp_search,
     reddit_search_api,
