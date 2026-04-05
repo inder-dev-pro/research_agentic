@@ -38,13 +38,13 @@ def _compact_search_payload(payload, max_organic: int = 3, max_chars: int = 4000
         text = payload
     elif isinstance(payload, dict):
         payload_copy = dict(payload)
-        # Keep only top-N organic results to reduce prompt tokens.
+
         organic = payload_copy.get("organic")
         if isinstance(organic, list):
             payload_copy["organic"] = organic[:max_organic]
         text = json.dumps(payload_copy, ensure_ascii=False)
     else:
-        # Fallback: stringify unknown types.
+
         text = json.dumps(payload, ensure_ascii=False, default=str)
 
     text = text.strip()
