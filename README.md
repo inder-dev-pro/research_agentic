@@ -37,7 +37,7 @@ The graph is built in `main.py` with nodes for: searching (Google/Bing/Reddit), 
 
 ### End-to-end flow (high level)
 
-![Alt text that describes the image](image.png)
+![Alt text that describes the image](output.png)
 
 
 Key behaviors implemented in code:
